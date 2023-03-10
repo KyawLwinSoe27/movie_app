@@ -1,33 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/vos/movie_vo.dart';
 import 'package:movie_app/resources/dimensions.dart';
-import 'package:movie_app/resources/colors.dart';
 
+import '../network/api_constants.dart';
 import '../widgets/gradient_view.dart';
 import '../widgets/play_button_view.dart';
 
 class BannerView extends StatelessWidget {
-  const BannerView({Key? key}) : super(key: key);
+  final MovieVO? movie;
+  const BannerView({ Key? key, required this.movie}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Stack(
-        children:  [
-          Positioned.fill(
-            child: BannerImageView(),
-          ),
-          Positioned.fill(
-            child: GradientView(),),
-          Align(
-            alignment: Alignment.bottomLeft,
-            child: BannerTitleView(),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: PlayButtonView(),
-          ),
-        ],
-      ),
+    return Stack(
+      children:  [
+        Positioned.fill(
+          child: BannerImageView(imgUrl: movie?.posterPath ?? ""),
+        ),
+        Positioned.fill(
+          child: GradientView(),),
+        Align(
+          alignment: Alignment.bottomLeft,
+          child: BannerTitleView(title: movie?.title ?? ""),
+        ),
+        const Align(
+          alignment: Alignment.center,
+          child: PlayButtonView(),
+        ),
+      ],
     );
   }
 }
@@ -36,8 +36,10 @@ class BannerView extends StatelessWidget {
 
 
 class BannerTitleView extends StatelessWidget {
+  final String title;
   const BannerTitleView({
     Key? key,
+    required this.title
   }) : super(key: key);
 
   @override
@@ -47,16 +49,16 @@ class BannerTitleView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
-        children: const [
+        children: [
           Text(
-            "The Wolverine 2013.",
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w500,
               fontSize: TEXT_HEADING_1X,
             ),
           ),
-          Text(
+          const Text(
             "Official Review.",
             style: TextStyle(
               color: Colors.white,
@@ -71,14 +73,16 @@ class BannerTitleView extends StatelessWidget {
 }
 
 class BannerImageView extends StatelessWidget {
+  final String imgUrl;
   const BannerImageView({
     Key? key,
+    required this.imgUrl
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://i-viaplay-com.akamaized.net/viaplay-prod/279/556/1460037707-ecdc08be05c2c5d087ea0f67d239b9bcf3fec96b.jpg?width=1600&height=900",
+      "$IMAGE_BASE_URL$imgUrl",
       fit: BoxFit.cover,
     );
   }

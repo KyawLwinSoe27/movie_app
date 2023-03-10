@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/vos/actor_vo.dart';
+import 'package:movie_app/network/api_constants.dart';
 
 import '../resources/colors.dart';
 import '../resources/dimensions.dart';
 
 class ActorView extends StatelessWidget {
-  const ActorView({Key? key}) : super(key: key);
+  final ActorVO? actor;
+  const ActorView({Key? key, required this.actor}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +17,7 @@ class ActorView extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ActorImageView(),
+              child: ActorImageView(actorProfilePath : actor?.profilePath ?? ""),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
@@ -25,7 +28,7 @@ class ActorView extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.bottomCenter,
-              child: ActorNameAndLikeView(),
+              child: ActorNameAndLikeView(actorName : actor?.name ?? ""),
             )
           ],
         ));
@@ -33,14 +36,15 @@ class ActorView extends StatelessWidget {
 }
 
 class ActorImageView extends StatelessWidget {
+  final String? actorProfilePath;
   const ActorImageView({
-    Key? key,
+    Key? key, required this.actorProfilePath
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://pagesix.com/wp-content/uploads/sites/3/2022/12/leonardo-dicaprio-party-0001.jpg?quality=75&strip=all&w=1024",
+      "$IMAGE_BASE_URL${actorProfilePath ?? ""}",
       fit: BoxFit.cover,
     );
   }
@@ -61,8 +65,9 @@ class FavouriteButtonView extends StatelessWidget {
 }
 
 class ActorNameAndLikeView extends StatelessWidget {
+  final String? actorName;
   const ActorNameAndLikeView({
-    Key? key,
+    Key? key, required this.actorName
   }) : super(key: key);
 
   @override
@@ -75,7 +80,7 @@ class ActorNameAndLikeView extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Leonado Dicapario",
+            actorName ?? "",
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
           SizedBox(

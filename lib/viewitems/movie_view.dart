@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app/widgets/rating_view.dart';
+import '../data/vos/movie_vo.dart';
+import '../network/api_constants.dart';
 import '../resources/dimensions.dart';
 
 class MovieView extends StatelessWidget {
   final Function onTapMovie;
-  MovieView(this.onTapMovie);
+  final MovieVO? movie;
+  const MovieView(this.onTapMovie,{Key? key, required this.movie}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +24,7 @@ class MovieView extends StatelessWidget {
               onTapMovie();
             },
             child: Image.network(
-              "https://i-viaplay-com.akamaized.net/viaplay-prod/279/556/1460037707-ecdc08be05c2c5d087ea0f67d239b9bcf3fec96b.jpg?width=1600&height=900",
+              "$IMAGE_BASE_URL${movie?.posterPath ?? ""}",
               height: 200.0,
               fit: BoxFit.cover,
             ),
@@ -29,7 +33,7 @@ class MovieView extends StatelessWidget {
             height: MARGIN_MEDIUM,
           ),
           Text(
-            "West World",
+            movie?.title ?? "",
             style: TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,

@@ -2,43 +2,45 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/resources/dimensions.dart';
 import 'package:movie_app/widgets/title_text.dart';
 
+import '../data/vos/movie_vo.dart';
+import '../network/api_constants.dart';
 import '../widgets/play_button_view.dart';
 
 class ShowCaseView extends StatelessWidget {
-  const ShowCaseView({Key? key}) : super(key: key);
+  final MovieVO? movie;
+  const ShowCaseView({ Key? key, required this.movie}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: EdgeInsets.only(left: MARGIN_MEDIUM_2),
+      margin: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
       width: 300,
-      child: Container(
-        child: Stack(
-          children: [
-            Positioned.fill(
-              child: ShowCaseImageView(),
+      child: Stack(
+        children: [
+          Positioned.fill(
+            child: ShowCaseImageView(imageURL: movie?.posterPath ?? "",),
+          ),
+          const Align(
+            alignment: Alignment.center,
+            child: PlayButtonView(),
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(MARGIN_MEDIUM_2),
+              child: ShowCaseTitleView(title : movie?.title ?? ""),
             ),
-            Align(
-              alignment: Alignment.center,
-              child: PlayButtonView(),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(MARGIN_MEDIUM_2),
-                child: ShowCaseTitleView(),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
 class ShowCaseTitleView extends StatelessWidget {
+  final String? title;
   const ShowCaseTitleView({
-    Key? key,
+    Key? key, required this.title
   }) : super(key: key);
 
   @override
@@ -48,29 +50,30 @@ class ShowCaseTitleView extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Text(
-          "Passengers",
-          style: TextStyle(
+          title ?? "",
+          style: const TextStyle(
               color: Colors.white,
               fontSize: TEXT_REGULAR_3X,
               fontWeight: FontWeight.w600
           ),
         ),
-        SizedBox(height: MARGIN_MEDIUM),
-        TitleText("15 DECEMBER 2016"),
+        const SizedBox(height: MARGIN_MEDIUM),
+        const TitleText("15 DECEMBER 2016"),
       ],
     );
   }
 }
 
 class ShowCaseImageView extends StatelessWidget {
+  final String imageURL;
   const ShowCaseImageView({
-    Key? key,
+    Key? key, required this.imageURL
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://i-viaplay-com.akamaized.net/viaplay-prod/279/556/1460037707-ecdc08be05c2c5d087ea0f67d239b9bcf3fec96b.jpg?width=1600&height=900",
+      "$IMAGE_BASE_URL$imageURL",
       fit: BoxFit.cover,
     );
   }

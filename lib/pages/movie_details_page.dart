@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:movie_app/pages/home_page.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
@@ -14,6 +13,8 @@ class MovieDetailsPage extends StatelessWidget {
     "Action",
     "Adventrure",
   ];
+
+  MovieDetailsPage({key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,7 +36,7 @@ class MovieDetailsPage extends StatelessWidget {
                   ActorsAndCreatorsSectionView(
                     MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
                     "",
-                    seeMoreButtonVisibility: false,
+                    seeMoreButtonVisibility: false, actorsList: [],
                   ),
                   SizedBox(height: MARGIN_LARGE,),
                   Container(
@@ -45,7 +46,7 @@ class MovieDetailsPage extends StatelessWidget {
                   SizedBox(height: MARGIN_LARGE,),
                   ActorsAndCreatorsSectionView(
                       MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
-                      MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE),
+                      MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE, actorsList: [],),
                 ],
               ),
             )
