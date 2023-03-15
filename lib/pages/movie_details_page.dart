@@ -1,20 +1,69 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/data/models/movie_model_impl.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
 
+import '../data/models/movie_model.dart';
+import '../data/vos/actor_vo.dart';
+import '../data/vos/movie_vo.dart';
+import '../network/api_constants.dart';
 import '../resources/dimensions.dart';
 import '../resources/strings.dart';
 import '../widgets/actors_and_creators_section_view.dart';
 import '../widgets/gradient_view.dart';
 
-class MovieDetailsPage extends StatelessWidget {
-  final List<String> genreList = [
-    "Action",
-    "Adventrure",
-  ];
+class MovieDetailsPage extends StatefulWidget {
+  final int movieId;
 
-  MovieDetailsPage({key});
+  MovieDetailsPage({key, required this.movieId});
+
+  @override
+  State<MovieDetailsPage> createState() => _MovieDetailsPageState();
+}
+
+class _MovieDetailsPageState extends State<MovieDetailsPage> {
+  /// Model
+  MovieModel _movieModel = MovieModelImpl();
+
+  /// State Variable
+  MovieVO? movieDetails;
+  List<ActorVO>? cast;
+  List<ActorVO>? crew;
+
+  /// init State
+  @override
+  void initState() {
+    /// Movie Details From Network
+    _movieModel.getMovieDetails(widget.movieId).then((movieDetails) {
+      setState(() {
+        this.movieDetails = movieDetails;
+      });
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+    /// Movie Details From Database
+    _movieModel.getMovieDetailsFromDatabase(widget.movieId).then((movieDetails) {
+      setState(() {
+        this.movieDetails = movieDetails;
+      });
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+    _movieModel.getCreditsByMovie(widget.movieId).then((castAndCrew) {
+      setState(() {
+        this.cast = castAndCrew.first;
+        this.crew = castAndCrew[1];
+      });
+    }).catchError((error) {
+      debugPrint(error.toString());
+    });
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,13 +71,17 @@ class MovieDetailsPage extends StatelessWidget {
         color: HOME_SCREEN_BG_COLOR,
         child: CustomScrollView(
           slivers: [
-            MovieDetailsSliverAppBarView(() => Navigator.pop(context)),
+            MovieDetailsSliverAppBarView(() => Navigator.pop(context),
+                movie: this.movieDetails),
             SliverList(
               delegate: SliverChildListDelegate(
                 [
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                    child: TrailerSection(genreList),
+                    child: TrailerSection(
+                        overview: this.movieDetails?.overview,
+                        genreList:
+                            movieDetails?.getGenreListAsStringList() ?? []),
                   ),
                   SizedBox(
                     height: MARGIN_LARGE,
@@ -36,17 +89,24 @@ class MovieDetailsPage extends StatelessWidget {
                   ActorsAndCreatorsSectionView(
                     MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
                     "",
-                    seeMoreButtonVisibility: false, actorsList: [],
+                    seeMoreButtonVisibility: false,
+                    actorsList: this.cast,
                   ),
-                  SizedBox(height: MARGIN_LARGE,),
+                  SizedBox(
+                    height: MARGIN_LARGE,
+                  ),
                   Container(
                     padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                    child: AboutFilmSectionView(),
+                    child: AboutFilmSectionView(aboutMovie: movieDetails),
                   ),
-                  SizedBox(height: MARGIN_LARGE,),
+                  SizedBox(
+                    height: MARGIN_LARGE,
+                  ),
                   ActorsAndCreatorsSectionView(
-                      MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
-                      MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE, actorsList: [],),
+                    MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
+                    MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
+                    actorsList: this.crew,
+                  ),
                 ],
               ),
             )
@@ -58,8 +118,9 @@ class MovieDetailsPage extends StatelessWidget {
 }
 
 class AboutFilmSectionView extends StatelessWidget {
+  final MovieVO? aboutMovie;
   const AboutFilmSectionView({
-    Key? key,
+    Key? key, required this.aboutMovie,
   }) : super(key: key);
 
   @override
@@ -68,18 +129,26 @@ class AboutFilmSectionView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleText("ABOUT FILM"),
-        SizedBox(height: MARGIN_MEDIUM_2,),
-        AboutFilmInfoView(
-            "Original Title", "X-Men Origins: The Wolverine"),
-        SizedBox(height: MARGIN_MEDIUM_2,),
-        AboutFilmInfoView("Type", "Action, Adventure"),
-        SizedBox(height: MARGIN_MEDIUM_2,),
-        AboutFilmInfoView("Production", "United Kingdom, USA"),
-        SizedBox(height: MARGIN_MEDIUM_2,),
-        AboutFilmInfoView("Premier", "8 November 2016(World)"),
-        SizedBox(height: MARGIN_MEDIUM_2,),
-        AboutFilmInfoView("Description",
-            "The Wolverine was released by 20th Century Fox in various international markets on July 24, 2013, and in the United States two days later. It received generally positive reviews from critics, with praise for its action sequences")
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutFilmInfoView("Original Title", aboutMovie?.title ?? ""),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutFilmInfoView("Type", aboutMovie?.getGenreListAsCommaSeparatedString() ?? ""),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutFilmInfoView("Production", aboutMovie?.getProductionCountriesAsCommaSeparatedString() ?? ""),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutFilmInfoView("Premier", aboutMovie?.releaseDate ?? ""),
+        SizedBox(
+          height: MARGIN_MEDIUM_2,
+        ),
+        AboutFilmInfoView("Description",aboutMovie?.overview ?? "")
       ],
     );
   }
@@ -97,14 +166,15 @@ class AboutFilmInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-            width: MediaQuery.of(context).size.width / 3,
-            child: Text(
-              lable,
-              style: TextStyle(
-                  color: MOVIE_DETAILS_INFO_TEXT_COLOR,
-                  fontWeight: FontWeight.w600,
-                  fontSize: MARGIN_MEDIUM_2),
-            ),),
+          width: MediaQuery.of(context).size.width / 3,
+          child: Text(
+            lable,
+            style: TextStyle(
+                color: MOVIE_DETAILS_INFO_TEXT_COLOR,
+                fontWeight: FontWeight.w600,
+                fontSize: MARGIN_MEDIUM_2),
+          ),
+        ),
         SizedBox(
           width: MARGIN_CARD_MEDIUM_2,
         ),
@@ -124,8 +194,11 @@ class AboutFilmInfoView extends StatelessWidget {
 
 class TrailerSection extends StatelessWidget {
   final List<String> genreList;
+  final String? overview;
 
-  const TrailerSection(this.genreList);
+  const TrailerSection(
+      {Key? key, required this.overview, required this.genreList})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -136,7 +209,7 @@ class TrailerSection extends StatelessWidget {
         SizedBox(
           height: MARGIN_MEDIUM_3,
         ),
-        StoryLineView(),
+        StoryLineView(overview: this.overview ?? ""),
         SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
@@ -215,9 +288,8 @@ class MovieDetailsScreenButtonView extends StatelessWidget {
 }
 
 class StoryLineView extends StatelessWidget {
-  const StoryLineView({
-    Key? key,
-  }) : super(key: key);
+  final String overview;
+  const StoryLineView({Key? key, required this.overview}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +301,7 @@ class StoryLineView extends StatelessWidget {
           height: MARGIN_MEDIUM,
         ),
         Text(
-          "The film's development began in 2009 after the release of X-Men Origins: Wolverine. Christopher McQuarrie was hired to write a screenplay for The Wolverine in August 2009. In October 2010, Darren Aronofsky was hired to direct the film. The project was delayed following Aronofsky's departure and the Tōhoku earthquake and tsunami in March 2011. In June 2011, Mangold was brought on board to replace Aronofsky. Bomback was then hired to rewrite the screenplay in September 2011. The supporting characters were cast in July 2012 with principal photography beginning at the end of the month around New South Wales before moving to Tokyo in August 2012 and back to New South Wales in October 2012. The film was converted to 3D in post-production.",
+          overview,
           style: TextStyle(color: Colors.white, fontSize: TEXT_REGULAR_2X),
         ),
       ],
@@ -247,7 +319,9 @@ class MovieTimeAndGenreView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Wrap(
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Icon(
           Icons.access_time,
@@ -266,10 +340,8 @@ class MovieTimeAndGenreView extends StatelessWidget {
         SizedBox(
           width: MARGIN_MEDIUM,
         ),
-        Row(
-          children: genreList.map((genre) => GenreChipView(genre)).toList(),
-        ),
-        Spacer(),
+          ...genreList
+            .map((genre) => GenreChipView(genre),).toList(),
         Icon(
           Icons.favorite_border,
           color: Colors.white,
@@ -287,6 +359,7 @@ class GenreChipView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Chip(
           backgroundColor: MOVIE_DETAILS_SCREEN_CHIP_BACKGROUND_COLOR,
@@ -296,7 +369,7 @@ class GenreChipView extends StatelessWidget {
           ),
         ),
         SizedBox(
-          width: MARGIN_SMALL / 2,
+          width: MARGIN_SMALL,
         ),
       ],
     );
@@ -305,7 +378,10 @@ class GenreChipView extends StatelessWidget {
 
 class MovieDetailsSliverAppBarView extends StatelessWidget {
   final Function onTapBack;
-  MovieDetailsSliverAppBarView(this.onTapBack);
+  final MovieVO? movie;
+  const MovieDetailsSliverAppBarView(this.onTapBack,
+      {Key? key, required this.movie})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -317,13 +393,14 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
         background: Stack(
           children: [
             Positioned.fill(
-              child: MovieDetailsAppBarImageView(),
+              child:
+                  MovieDetailsAppBarImageView(imgUrl: movie?.posterPath ?? ""),
             ),
             Positioned.fill(child: GradientView()),
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
-                padding: EdgeInsets.only(
+                padding: const EdgeInsets.only(
                   top: MARGIN_XLARGE,
                   left: MARGIN_MEDIUM_2,
                 ),
@@ -332,7 +409,7 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
                 }),
               ),
             ),
-            Align(
+            const Align(
               alignment: Alignment.topRight,
               child: Padding(
                 padding: EdgeInsets.only(
@@ -350,7 +427,7 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
                       left: MARGIN_MEDIUM_2,
                       right: MARGIN_MEDIUM_2,
                       bottom: MARGIN_LARGE),
-                  child: MovieDetailsTitleAndRatingView(),
+                  child: MovieDetailsTitleAndRatingView(movie: this.movie),
                 ),
               ),
             )
@@ -362,9 +439,9 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
 }
 
 class MovieDetailsTitleAndRatingView extends StatelessWidget {
-  const MovieDetailsTitleAndRatingView({
-    Key? key,
-  }) : super(key: key);
+  final MovieVO? movie;
+  const MovieDetailsTitleAndRatingView({Key? key, required this.movie})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -374,16 +451,20 @@ class MovieDetailsTitleAndRatingView extends StatelessWidget {
       children: [
         Row(
           children: [
-            MovieDetailsYearView(),
+            MovieDetailsYearView(
+                year: movie?.releaseDate?.substring(0, 4) ?? ""),
             Spacer(),
-            MovieDetailsRatingView()
+            MovieDetailsRatingView(
+              rating: movie?.voteCount ?? 0,
+              average: movie?.voteAverage ?? 0.0,
+            )
           ],
         ),
         SizedBox(
           height: MARGIN_MEDIUM,
         ),
         Text(
-          "X-Men Origins: The\nWolvering",
+          movie?.title ?? "",
           style: TextStyle(
               color: Colors.white,
               fontSize: TEXT_HEADING_1X,
@@ -395,8 +476,12 @@ class MovieDetailsTitleAndRatingView extends StatelessWidget {
 }
 
 class MovieDetailsRatingView extends StatelessWidget {
+  final int rating;
+  final double average;
   const MovieDetailsRatingView({
     Key? key,
+    required this.rating,
+    required this.average,
   }) : super(key: key);
 
   @override
@@ -409,21 +494,21 @@ class MovieDetailsRatingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             RatingView(),
-            SizedBox(
+            const SizedBox(
               height: MARGIN_SMALL / 2,
             ),
-            TitleText("38876 VOTES"),
-            SizedBox(
+            TitleText("$rating VOTES"),
+            const SizedBox(
               height: MARGIN_SMALL / 2,
             )
           ],
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_MEDIUM,
         ),
         Text(
-          "9,76",
-          style: TextStyle(
+          average.toString() ?? "",
+          style: const TextStyle(
               color: Colors.white, fontSize: MOVIE_DETAILS_RATING_TEXT_SIZE),
         )
       ],
@@ -432,9 +517,8 @@ class MovieDetailsRatingView extends StatelessWidget {
 }
 
 class MovieDetailsYearView extends StatelessWidget {
-  const MovieDetailsYearView({
-    Key? key,
-  }) : super(key: key);
+  final String year;
+  const MovieDetailsYearView({Key? key, required this.year}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -451,7 +535,7 @@ class MovieDetailsYearView extends StatelessWidget {
       ),
       child: Center(
           child: Text(
-        "2016",
+        year,
         style: TextStyle(color: Colors.white),
       )),
     );
@@ -474,7 +558,6 @@ class SearchButtonView extends StatelessWidget {
 }
 
 class BackButtonView extends StatelessWidget {
-
   final Function onTapBack;
   BackButtonView(this.onTapBack);
 
@@ -487,7 +570,8 @@ class BackButtonView extends StatelessWidget {
       child: Container(
         width: MARGIN_XXLARGE,
         height: MARGIN_XXLARGE,
-        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
+        decoration:
+            BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
         child: Icon(
           Icons.chevron_left,
           color: Colors.white,
@@ -499,14 +583,16 @@ class BackButtonView extends StatelessWidget {
 }
 
 class MovieDetailsAppBarImageView extends StatelessWidget {
+  final String imgUrl;
   const MovieDetailsAppBarImageView({
     Key? key,
+    required this.imgUrl,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Image.network(
-      "https://i.ytimg.com/vi/u1VCP3O8wG0/maxresdefault.jpg",
+      "$IMAGE_BASE_URL$imgUrl",
       fit: BoxFit.cover,
     );
   }

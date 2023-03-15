@@ -2,9 +2,12 @@ import 'package:movie_app/data/models/movie_model.dart';
 import 'package:movie_app/data/vos/actor_vo.dart';
 import 'package:movie_app/data/vos/genre_vo.dart';
 import 'package:movie_app/data/vos/movie_vo.dart';
+import 'package:movie_app/persistence/daos/actor_dao.dart';
+import 'package:movie_app/persistence/daos/genre_dao.dart';
 
 import '../../network/dataagents/movie_data_agent.dart';
 import '../../network/dataagents/retrofit_movie_data_agent_impl.dart';
+import '../../persistence/daos/movie_dao.dart';
 
 class MovieModelImpl extends MovieModel {
 
@@ -17,41 +20,145 @@ class MovieModelImpl extends MovieModel {
 
   MovieModelImpl._internal(); //ရေးစရာဘာမှမရှိ
 
-  final MovieDataAgent _dataAgent = RetrofitMovieDataAgentImpl();
+  final MovieDataAgent _dataAgent = RetrofitMovieDataAgentImpl(); //data agent ကို setup လုပ်ေပးရတယ်။
 
+  /// Daos
+  final MovieDao _mMovieDao = MovieDao();
+  final GenreDao _mGenreDao = GenreDao();
+  final ActorDao _mActorDao = ActorDao();
+  
+
+  // Network
   @override
-  Future<List<MovieVO>?> getNowPlayingMovies() {
-    return _dataAgent.getNowPlayingMovies(1);
+  Future<List<MovieVO>?> getNowPlayingMovies(int page) {
+    return _dataAgent.getNowPlayingMovies(page).then((movies) async { //Network ကနေ Movies List ရလာမယ်
+      List<MovieVO> nowPlayingMovies = movies?.map((movie) {
+        movie.isNowPlaying = true;
+        movie.isPopular = false;
+        movie.isTopRated = false;
+        return movie;
+      }).toList() ?? [];
+      _mMovieDao.saveAllMovies(nowPlayingMovies);
+      return Future.value(movies);
+    });
   }
 
   @override
   Future<List<ActorVO>?> getActors(int page) {
-    // TODO: implement getActors
-    return _dataAgent.getActors(1);
+    return _dataAgent.getActors(page).then((actors) async{
+      if(actors != null){
+        _mActorDao.saveAllActors(actors);
+      }
+      return Future.value(actors);
+    });
   }
 
   @override
   Future<List<GenreVO>?> getGenres() {
-    // TODO: implement getGenres
-    return _dataAgent.getGenres();
+    return _dataAgent.getGenres().then((genres) async{
+      if( genres != null){
+        _mGenreDao.saveAllGenre(genres);
+      }
+      return Future.value(genres);
+    });
   }
 
   @override
   Future<List<MovieVO>?> getMoviesByGenre(int genreId) {
-    // TODO: implement getMoviesByGenre
     return _dataAgent.getMoviesByGenre(genreId);
   }
 
   @override
-  Future<List<MovieVO>?> getPopularMovies() {
-    // TODO: implement getPopularMovies
-    return _dataAgent.getPopularMovies(1);
+  Future<List<MovieVO>?> getPopularMovies(int page) {
+    return _dataAgent.getPopularMovies(page).then((movies) async{
+      List<MovieVO> popularMovies = movies?.map((movie) {
+        movie.isNowPlaying = false;
+        movie.isPopular = true;
+        movie.isTopRated = false;
+        return movie;
+      }).toList() ?? [];
+      _mMovieDao.saveAllMovies(popularMovies);
+      return Future.value(movies);
+    });
   }
 
   @override
-  Future<List<MovieVO>?> getTopRatedMovies() {
-    // TODO: implement getTopRatedMovies
-    return _dataAgent.getTopRatedMovies(1);
+  Future<List<MovieVO>?> getTopRatedMovies(int page) {
+    return _dataAgent.getTopRatedMovies(page).then((movies) async {
+      List<MovieVO> topRatedMovies = movies?.map((movie) {
+        movie.isNowPlaying = false;
+        movie.isPopular = false;
+        movie.isTopRated = true;
+        return movie;
+      }).toList() ?? [];
+      _mMovieDao.saveAllMovies(topRatedMovies);
+      return Future.value(movies);
+    });
   }
 
+  @override
+  Future<List<List<ActorVO>?>> getCreditsByMovie(int movieId) {
+    return _dataAgent.getCreditsByMovie(movieId);
+  }
+
+  @override
+  Future<MovieVO?> getMovieDetails(int movieId) {
+    return _dataAgent.getMovieDetails(movieId).then((movie) async {
+      if( movie != null){
+        _mMovieDao.saveSingleMovie(movie);
+      }
+      return Future.value(movie);
+    });
+  }
+
+  // Database
+  @override
+  Future<List<ActorVO>?> getAllActorsFromDatabase() {
+    return Future.value(
+      _mActorDao.getAllActors()
+    );
+  }
+
+  @override
+  Future<List<GenreVO>?> getGenresFromDatabase() {
+    return Future.value(
+      _mGenreDao.getAllGenres()
+    );
+    // return Future<List<GenreVO>?>.value(_mGenreDao.getAllGenres());
+  }
+
+
+  @override
+  Future<List<MovieVO>?> getNowPlayingMoviesFromDatabase() {
+    return Future.value(
+        _mMovieDao.getAllMovies()
+            .where((movie) => movie.isNowPlaying ?? true)
+            .toList()
+    );
+  }
+
+  @override
+  Future<List<MovieVO>?> getPopularMoviesFromDatabase() {
+    return Future.value(
+      _mMovieDao.getAllMovies()
+          .where((movie) => movie.isPopular ?? true)
+          .toList()
+    );
+  }
+
+  @override
+  Future<List<MovieVO>?> getTopRatedMoviesFromDatabase() {
+    return Future.value(
+      _mMovieDao.getAllMovies()
+          .where((movie) => movie.isTopRated ?? true)
+          .toList()
+    );
+  }
+
+  @override
+  Future<MovieVO?> getMovieDetailsFromDatabase(movieId) {
+    return Future.value(
+      _mMovieDao.getMovieById(movieId)
+    );
+  }
 }

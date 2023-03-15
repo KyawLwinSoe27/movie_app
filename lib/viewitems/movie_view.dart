@@ -6,9 +6,8 @@ import '../network/api_constants.dart';
 import '../resources/dimensions.dart';
 
 class MovieView extends StatelessWidget {
-  final Function onTapMovie;
   final MovieVO? movie;
-  const MovieView(this.onTapMovie,{Key? key, required this.movie}) : super(key: key);
+  const MovieView({Key? key, required this.movie}) : super(key: key);
 
 
   @override
@@ -19,15 +18,10 @@ class MovieView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
-            onTap: () {
-              onTapMovie();
-            },
-            child: Image.network(
-              "$IMAGE_BASE_URL${movie?.posterPath ?? ""}",
-              height: 200.0,
-              fit: BoxFit.cover,
-            ),
+          Image.network(
+            "$IMAGE_BASE_URL${movie?.posterPath ?? ""}",
+            height: 200.0,
+            fit: BoxFit.cover,
           ),
           SizedBox(
             height: MARGIN_MEDIUM,
