@@ -30,6 +30,59 @@ class MovieDao {
     return getMovieBox().get(movieId);
   }
 
+  /// Reactive Programming
+  Stream<void> getAllMoviesEventStream() { //Data Change Event
+    return getMovieBox().watch(); //function changes invoke လုပ်ရင် သူ့ကို listen လုပ်နေတယ့် callback ထဲကိုရောက်
+  }
+
+  Stream<List<MovieVO>> getNowPlayingMoviesStream() {
+    return Stream.value(getAllMovies()
+      .where((element) => element.isNowPlaying ?? false).toList()
+    );
+  }
+
+  Stream<List<MovieVO>> getTopRatedMoviesStream() {
+    return Stream.value(getAllMovies()
+    .where((element) => element.isTopRated ?? false).toList()
+    );
+  }
+
+  Stream<List<MovieVO>> getPopularMoviesStream() {
+    return Stream.value(getAllMovies()
+    .where((element) => element.isPopular ?? false).toList()
+    );
+  }
+
+  List<MovieVO> getNowPlayingMovies() {
+    if((getAllMovies().isNotEmpty)){
+      return getAllMovies()
+          .where((element) => element.isNowPlaying ?? false)
+          .toList();
+    }else {
+      return [];
+    }
+  }
+
+  List<MovieVO> getPopularMovies() {
+    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
+      return getAllMovies()
+          .where((element) => element.isPopular ?? false)
+          .toList();
+    }else{
+      return [];
+    }
+  }
+
+  List<MovieVO> getTopRatedMovies() {
+    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
+      return getAllMovies()
+          .where((element) => element.isTopRated ?? false)
+          .toList();
+    }else {
+      return [];
+    }
+  }
+
   Box<MovieVO> getMovieBox() {
     return Hive.box<MovieVO>(BOX_NAME_MOVIE_VO);
   }
