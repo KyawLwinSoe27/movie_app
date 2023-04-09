@@ -19,7 +19,15 @@ class MovieModelImpl extends MovieModel {
     return _singleton;
   }
 
-  MovieModelImpl._internal(); //ရေးစရာဘာမှမရှိ
+  MovieModelImpl._internal(){
+    getNowPlayingMoviesFromDatabase();
+    getTopRatedMoviesFromDatabase();
+    getPopularMoviesFromDatabase();
+    getAllActorsFromDatabase();
+    getActors(1);
+    getGenres();
+    getGenresFromDatabase();
+  }
 
   final MovieDataAgent _dataAgent = RetrofitMovieDataAgentImpl(); //data agent ကို setup လုပ်ေပးရတယ်။
 
@@ -27,6 +35,20 @@ class MovieModelImpl extends MovieModel {
   final MovieDao _mMovieDao = MovieDao();
   final GenreDao _mGenreDao = GenreDao();
   final ActorDao _mActorDao = ActorDao();
+
+
+  /// Home Page State Variables
+  List<MovieVO>? nowPlayingMovies;
+  List<MovieVO>? popularMovies;
+  List<MovieVO>? topRatedMovies;
+  List<MovieVO>? moviesByGenre;
+  List<GenreVO>? genres;
+  List<ActorVO>? actors;
+
+  /// Movie Details State Varaibales
+  MovieVO? movieDetails;
+  List<ActorVO>? cast;
+  List<ActorVO>? crew;
   
 
   // Network
@@ -40,32 +62,42 @@ class MovieModelImpl extends MovieModel {
         return movie;
       }).toList() ?? [];
       _mMovieDao.saveAllMovies(nowPlayingMovies);
+      nowPlayingMovies = nowPlayingMovies;
+      notifyListeners();
     });
   }
 
   @override
-  Future<List<ActorVO>?> getActors(int page) {
-    return _dataAgent.getActors(page).then((actors) async{
+  void getActors(int page) {
+     _dataAgent.getActors(page).then((actors) async{
       if(actors != null){
         _mActorDao.saveAllActors(actors);
+        actors = actors;
+        notifyListeners();
       }
       return Future.value(actors);
     });
   }
 
   @override
-  Future<List<GenreVO>?> getGenres() {
-    return _dataAgent.getGenres().then((genres) async{
+  void getGenres() {
+     _dataAgent.getGenres().then((genres) async{
       if( genres != null){
         _mGenreDao.saveAllGenre(genres);
+        genres = genres;
+        getMoviesByGenre(genres.first.id ?? 0);
+        notifyListeners();
       }
       return Future.value(genres);
     });
   }
 
   @override
-  Future<List<MovieVO>?> getMoviesByGenre(int genreId) {
-    return _dataAgent.getMoviesByGenre(genreId);
+  void getMoviesByGenre(int genreId) {
+     _dataAgent.getMoviesByGenre(genreId).then((movieList) {
+       moviesByGenre = movieList;
+       notifyListeners();
+     });
   }
 
   @override
@@ -78,6 +110,9 @@ class MovieModelImpl extends MovieModel {
         return movie;
       }).toList() ?? [];
       _mMovieDao.saveAllMovies(popularMovies);
+      print(popularMovies);
+      this.popularMovies = popularMovies;
+      notifyListeners();
     });
   }
 
@@ -91,69 +126,97 @@ class MovieModelImpl extends MovieModel {
         return movie;
       }).toList() ?? [];
       _mMovieDao.saveAllMovies(topRatedMovies);
+      topRatedMovies = topRatedMovies;
+      notifyListeners();
     });
   }
 
   @override
-  Future<List<List<ActorVO>?>> getCreditsByMovie(int movieId) {
-    return _dataAgent.getCreditsByMovie(movieId);
+  void getCreditsByMovie(int movieId) {
+     _dataAgent.getCreditsByMovie(movieId)
+         .then((creditsList) {
+       this.cast = creditsList.first;
+       this.crew = creditsList[1];
+       notifyListeners();
+     });
   }
 
   @override
-  Future<MovieVO?> getMovieDetails(int movieId) {
-    return _dataAgent.getMovieDetails(movieId).then((movie) async {
+  void getMovieDetails(int movieId) {
+     _dataAgent.getMovieDetails(movieId).then((movie) async {
       if( movie != null){
         _mMovieDao.saveSingleMovie(movie);
+        movieDetails = movie;
+        notifyListeners();
       }
+
       return Future.value(movie);
     });
   }
 
   // Database
   @override
-  Future<List<ActorVO>?> getAllActorsFromDatabase() {
-    return Future.value(
-      _mActorDao.getAllActors()
-    );
+  void getAllActorsFromDatabase() {
+    actors = _mActorDao.getAllActors();
+    notifyListeners();
   }
 
   @override
-  Future<List<GenreVO>?> getGenresFromDatabase() {
-    return Future.value(
-      _mGenreDao.getAllGenres()
-    );
-    // return Future<List<GenreVO>?>.value(_mGenreDao.getAllGenres());
+  void getGenresFromDatabase() {
+    genres = _mGenreDao.getAllGenres();
+    notifyListeners();
   }
 
 
   @override
-  Stream<List<MovieVO>> getNowPlayingMoviesFromDatabase() {
+  void getNowPlayingMoviesFromDatabase() {
     this.getNowPlayingMovies(1);
-    return _mMovieDao.getAllMoviesEventStream()
+    _mMovieDao.getAllMoviesEventStream()
       .startWith(_mMovieDao.getNowPlayingMoviesStream())
-        .map((event) => _mMovieDao.getNowPlayingMovies());
+      .combineLatest(_mMovieDao.getNowPlayingMoviesStream(),
+            (event, movieList) => movieList as List<MovieVO>)
+      .first
+      .then((nowPlayingMovies) {
+        this.nowPlayingMovies = nowPlayingMovies;
+        notifyListeners();
+    });
   }
 
   @override
-  Stream<List<MovieVO>> getPopularMoviesFromDatabase() {
+  void getPopularMoviesFromDatabase() {
     this.getPopularMovies(1);
-    return _mMovieDao.getAllMoviesEventStream()
+     _mMovieDao.getAllMoviesEventStream()
       .startWith(_mMovieDao.getPopularMoviesStream())
-      .map((event) => _mMovieDao.getPopularMovies());
+        .combineLatest(_mMovieDao.getPopularMoviesStream(),
+             (event, movieList) => movieList as List<MovieVO>)
+        .first
+        .then((popularMovies) {
+          this.popularMovies = popularMovies;
+          notifyListeners();
+     });
+
   }
 
   @override
-  Stream<List<MovieVO>> getTopRatedMoviesFromDatabase() {
+  void getTopRatedMoviesFromDatabase() {
     this.getTopRatedMovies(1);
-    return _mMovieDao.getAllMoviesEventStream()
+    _mMovieDao.getAllMoviesEventStream()
         .startWith(_mMovieDao.getTopRatedMoviesStream())
-        .map((event) => _mMovieDao.getTopRatedMovies());
+        // .map((event) => _mMovieDao.getTopRatedMovies())
+        .combineLatest(_mMovieDao.getTopRatedMoviesStream(),
+            (event, movieList) => movieList as List<MovieVO>)
+        .first
+        .then((topRatedMovies) {
+       this.topRatedMovies = topRatedMovies;
+       notifyListeners();
+    });
+
   }
 
   @override
-  Future<MovieVO?> getMovieDetailsFromDatabase(movieId) {
-    return Future.value(
-      _mMovieDao.getMovieById(movieId)
-    );
+  void getMovieDetailsFromDatabase(movieId) {
+
+     movieDetails = _mMovieDao.getMovieById(movieId);
+    notifyListeners();
   }
 }
