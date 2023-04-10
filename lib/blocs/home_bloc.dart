@@ -8,12 +8,7 @@ import 'package:movie_app/data/vos/genre_vo.dart';
 
 import '../data/models/movie_model.dart';
 import '../data/vos/movie_vo.dart';
-List<MovieVO>? nowPlayingMovies;
-List<MovieVO>? popularMovies;
-List<MovieVO>? topRatedMovies;
-List<MovieVO>? moviesByGenre;
-List<GenreVO>? genres;
-List<ActorVO>? actors;
+
 class HomeBloc
 {
   /// Reactive Streams

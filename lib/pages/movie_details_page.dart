@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/blocs/movie_details_bloc.dart';
 import 'package:movie_app/data/models/movie_model_impl.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/widgets/rating_view.dart';
@@ -23,96 +24,94 @@ class MovieDetailsPage extends StatefulWidget {
 }
 
 class _MovieDetailsPageState extends State<MovieDetailsPage> {
-  /// Model
-  MovieModel _movieModel = MovieModelImpl();
-
-  /// State Variable
-  MovieVO? movieDetails;
-  List<ActorVO>? cast;
-  List<ActorVO>? crew;
+  MovieDetailsBloc? _bloc;
 
   /// init State
   @override
   void initState() {
-    /// Movie Details From Network
-    _movieModel.getMovieDetails(widget.movieId).then((movieDetails) {
-      setState(() {
-        this.movieDetails = movieDetails;
-      });
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
-
-    /// Movie Details From Database
-    _movieModel.getMovieDetailsFromDatabase(widget.movieId).then((movieDetails) {
-      setState(() {
-        this.movieDetails = movieDetails;
-      });
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
-
-    _movieModel.getCreditsByMovie(widget.movieId).then((castAndCrew) {
-      setState(() {
-        this.cast = castAndCrew.first;
-        this.crew = castAndCrew[1];
-      });
-    }).catchError((error) {
-      debugPrint(error.toString());
-    });
-
+    _bloc = MovieDetailsBloc(widget.movieId);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _bloc?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        color: HOME_SCREEN_BG_COLOR,
-        child: CustomScrollView(
-          slivers: [
-            MovieDetailsSliverAppBarView(() => Navigator.pop(context),
-                movie: this.movieDetails),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Container(
-                    margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                    child: TrailerSection(
-                        overview: this.movieDetails?.overview,
-                        genreList:
-                            movieDetails?.getGenreListAsStringList() ?? []),
-                  ),
-                  SizedBox(
-                    height: MARGIN_LARGE,
-                  ),
-                  ActorsAndCreatorsSectionView(
-                    MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
-                    "",
-                    seeMoreButtonVisibility: false,
-                    actorsList: this.cast,
-                  ),
-                  SizedBox(
-                    height: MARGIN_LARGE,
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                    child: AboutFilmSectionView(aboutMovie: movieDetails),
-                  ),
-                  SizedBox(
-                    height: MARGIN_LARGE,
-                  ),
-                  ActorsAndCreatorsSectionView(
-                    MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
-                    MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
-                    actorsList: this.crew,
-                  ),
+      body: StreamBuilder(
+        stream: _bloc?.movieDetailsStreamController?.stream,
+        builder: (BuildContext context, AsyncSnapshot<MovieVO> snapshot) {
+          if(snapshot.hasData) {
+            return Container(
+              color: HOME_SCREEN_BG_COLOR,
+              child: CustomScrollView(
+                slivers: [
+                  MovieDetailsSliverAppBarView(() => Navigator.pop(context),
+                      movie: snapshot.data),
+                  SliverList(
+                    delegate: SliverChildListDelegate(
+                      [
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                          child: TrailerSection(
+                              overview: snapshot.data?.overview,
+                              genreList:
+                              snapshot.data?.getGenreListAsStringList() ?? []),
+                        ),
+                        SizedBox(
+                          height: MARGIN_LARGE,
+                        ),
+                        StreamBuilder(
+                          stream: _bloc?.castStreamController?.stream,
+                          builder: (BuildContext context, AsyncSnapshot<List<ActorVO>> snapshot) {
+                            return ActorsAndCreatorsSectionView(
+                              MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
+                              "",
+                              seeMoreButtonVisibility: false,
+                              actorsList: snapshot.data,
+                            );
+                          },
+                        ),
+                        SizedBox(
+                          height: MARGIN_LARGE,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                          child: AboutFilmSectionView(aboutMovie: snapshot.data),
+                        ),
+                        SizedBox(
+                          height: MARGIN_LARGE,
+                        ),
+                        StreamBuilder(
+                          stream: _bloc?.crewStreamController?.stream,
+                          builder: (BuildContext context, AsyncSnapshot<List<ActorVO>> snapshot) {
+                            if(snapshot.hasData) {
+                              return ActorsAndCreatorsSectionView(
+                                MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
+                                MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
+                                actorsList: snapshot.data,
+                              );
+                            }else {
+                              return Container();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+                  )
                 ],
               ),
-            )
-          ],
-        ),
-      ),
+            );
+          }else {
+            return const Center(child: CircularProgressIndicator(),);
+          }
+      },
+
+      )
     );
   }
 }
