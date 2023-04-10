@@ -25,47 +25,57 @@ class MovieDetailsPage extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => MovieDetailsBloc(movieId),
       child: Scaffold(
-        body: Consumer<MovieDetailsBloc>(
-          builder: (context, bloc, child) => Container(
+        body: Selector<MovieDetailsBloc, MovieVO>(
+          selector: (context, bloc) => bloc.movieDetails!,
+          builder: (context, movie, child) => Container(
             color: HOME_SCREEN_BG_COLOR,
             child: CustomScrollView(
               slivers: [
                 MovieDetailsSliverAppBarView(() => Navigator.pop(context),
-                    movie: bloc.movieDetails),
+                    movie: movie),
                 SliverList(
                   delegate: SliverChildListDelegate(
                     [
                       Container(
                         margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                         child: TrailerSection(
-                            overview: bloc.movieDetails?.overview,
+                            overview: movie.overview,
                             genreList:
-                            bloc.movieDetails?.getGenreListAsStringList() ?? []),
+                            movie.getGenreListAsStringList() ?? []),
                       ),
                       SizedBox(
                         height: MARGIN_LARGE,
                       ),
-                      ActorsAndCreatorsSectionView(
-                        MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
-                        "",
-                        seeMoreButtonVisibility: false,
-                        actorsList: bloc.cast,
+                      Selector<MovieDetailsBloc, List<ActorVO>>(
+                        selector: (context, bloc) => bloc.cast ?? [],
+                        builder: (context, actors, child) => ActorsAndCreatorsSectionView(
+                          MOVIE_DETAILS_SCREEN_ACTOR_TITLE,
+                          "",
+                          seeMoreButtonVisibility: false,
+                          actorsList: actors,
+                        ),
                       ),
                       SizedBox(
                         height: MARGIN_LARGE,
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-                        child: AboutFilmSectionView(aboutMovie: bloc.movieDetails),
+                        child: AboutFilmSectionView(aboutMovie: movie),
                       ),
                       SizedBox(
                         height: MARGIN_LARGE,
                       ),
-                      (bloc.crew != null && bloc.crew!.isNotEmpty) ? ActorsAndCreatorsSectionView(
-                        MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
-                        MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
-                        actorsList: bloc.crew,
-                      ) : Container(),
+                      Selector<MovieDetailsBloc, List<ActorVO>>(
+                        selector: (context, bloc) => bloc.crew ?? [],
+                        builder: (context, crewList, child) {
+                          return (crewList != null && crewList.isNotEmpty) ? ActorsAndCreatorsSectionView(
+                            MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
+                            MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
+                            actorsList: crewList,
+                          ) : Container();
+                        },
+                      )
+
                     ],
                   ),
                 )
