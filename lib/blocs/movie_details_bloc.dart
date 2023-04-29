@@ -11,6 +11,7 @@ class MovieDetailsBloc extends ChangeNotifier
   MovieVO? movieDetails;
   List<ActorVO>? cast;
   List<ActorVO>? crew;
+  List<MovieVO>? relatedMovies;
   
   /// Model
   MovieModel mMovieModel = MovieModelImpl();
@@ -19,6 +20,7 @@ class MovieDetailsBloc extends ChangeNotifier
     /// Movie Details Bloc
     mMovieModel.getMovieDetails(movieId).then((movie) {
       movieDetails = movie;
+      this.getRelatedMovieList(movie?.genres?.first.id ?? 0);
       notifyListeners();
     });
 
@@ -29,11 +31,18 @@ class MovieDetailsBloc extends ChangeNotifier
     });
 
     /// Credit Details
-
     mMovieModel.getCreditsByMovie(movieId).then((creditList) {
      cast = creditList.first;
      crew = creditList[1];
      notifyListeners();
+    });
+  }
+
+  /// Related Movie List
+  void getRelatedMovieList(int genreId) {
+    mMovieModel.getMoviesByGenre(genreId).then((relatedMovies){
+      this.relatedMovies = relatedMovies;
+      notifyListeners();
     });
   }
   

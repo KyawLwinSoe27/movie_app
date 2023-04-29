@@ -17,6 +17,9 @@ class HomeBloc extends ChangeNotifier
   List<GenreVO>? genres;
   List<ActorVO>? actors;
 
+  /// Page Number State
+  int pageForNowPlayingMovies = 1;
+
   /// Model
   MovieModel mMovieModel = MovieModelImpl();
 
@@ -86,6 +89,12 @@ class HomeBloc extends ChangeNotifier
       moviesByGenre = movieList;
       notifyListeners();
     });
+  }
+
+
+  void onNowPlayingMovieListEndReached() {
+  this.pageForNowPlayingMovies += 1;
+  mMovieModel.getNowPlayingMovies(pageForNowPlayingMovies);
   }
 
 }

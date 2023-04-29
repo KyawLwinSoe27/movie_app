@@ -14,6 +14,7 @@ import '../resources/dimensions.dart';
 import '../resources/strings.dart';
 import '../widgets/actors_and_creators_section_view.dart';
 import '../widgets/gradient_view.dart';
+import '../widgets/title_and_horizontal_movie_list_view.dart';
 
 class MovieDetailsPage extends StatelessWidget {
   final int movieId;
@@ -62,7 +63,7 @@ class MovieDetailsPage extends StatelessWidget {
                         padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                         child: AboutFilmSectionView(aboutMovie: movie),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: MARGIN_LARGE,
                       ),
                       Selector<MovieDetailsBloc, List<ActorVO>>(
@@ -74,8 +75,20 @@ class MovieDetailsPage extends StatelessWidget {
                             actorsList: crewList,
                           ) : Container();
                         },
-                      )
-
+                      ),
+                      const SizedBox(
+                        height: MARGIN_LARGE,
+                      ),
+                      Selector<MovieDetailsBloc,List<MovieVO>?>(
+                        selector: (context,bloc) => bloc.relatedMovies,
+                        builder: (context,relatedMovies,child) => TitleAndHorizontalMovieListView(
+                            onTapMovie: (movieId) =>
+                                _navigateToMovieDetailsScreen(context, movieId),
+                            nowPlayingMovies: relatedMovies,
+                            title : BEST_POPULAR_MOVIES,
+                          onListEndReached: () {},
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -85,6 +98,17 @@ class MovieDetailsPage extends StatelessWidget {
         ),
       ),
     );
+  }
+  void _navigateToMovieDetailsScreen(BuildContext context, int? movieId) {
+    if (movieId != null) {
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MovieDetailsPage(
+              movieId: movieId,
+            ),
+          ));
+    }
   }
 }
 
