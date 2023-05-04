@@ -1,89 +1,16 @@
-import 'package:hive/hive.dart';
-import 'package:movie_app/persistence/hive_constants.dart';
-
 import '../../data/vos/movie_vo.dart';
 
-class MovieDao {
+abstract class MovieDao {
+  void saveAllMovies(List<MovieVO> movieList);
+  void saveSingleMovie(MovieVO movie);
+  List<MovieVO> getAllMovies();
+  MovieVO? getMovieById(int movieId);
+  Stream<void> getAllMoviesEventStream();
+  Stream<List<MovieVO>> getNowPlayingMoviesStream();
+  Stream<List<MovieVO>> getTopRatedMoviesStream();
+  Stream<List<MovieVO>> getPopularMoviesStream();
+  List<MovieVO> getNowPlayingMovies();
+  List<MovieVO> getPopularMovies();
+  List<MovieVO> getTopRatedMovies();
 
-  static final MovieDao _singleton = MovieDao._internal();
-
-  factory MovieDao() {
-    return _singleton;
-  }
-
-  MovieDao._internal();
-
-  void saveAllMovies(List<MovieVO> movieList) async {
-    Map<int,MovieVO> movieMap = Map.fromIterable(movieList, key: (movie) => movie.id, value: (movie) => movie);
-    return await getMovieBox().putAll(movieMap);
-  }
-
-  void saveSingleMovie(MovieVO movie) async {
-    return await getMovieBox().put(movie.id, movie);
-  }
-
-  List<MovieVO> getAllMovies() {
-    return getMovieBox().values.toList();
-  }
-
-  MovieVO? getMovieById(int movieId) {
-    return getMovieBox().get(movieId);
-  }
-
-  /// Reactive Programming
-  Stream<void> getAllMoviesEventStream() { //Data Change Event
-    return getMovieBox().watch(); //function changes invoke လုပ်ရင် သူ့ကို listen လုပ်နေတယ့် callback ထဲကိုရောက်
-  }
-
-  Stream<List<MovieVO>> getNowPlayingMoviesStream() {
-    return Stream.value(getAllMovies()
-      .where((element) => element.isNowPlaying ?? false).toList()
-    );
-  }
-
-  Stream<List<MovieVO>> getTopRatedMoviesStream() {
-    return Stream.value(getAllMovies()
-    .where((element) => element.isTopRated ?? false).toList()
-    );
-  }
-
-  Stream<List<MovieVO>> getPopularMoviesStream() {
-    return Stream.value(getAllMovies()
-    .where((element) => element.isPopular ?? false).toList()
-    );
-  }
-
-  List<MovieVO> getNowPlayingMovies() {
-    if((getAllMovies().isNotEmpty)){
-      return getAllMovies()
-          .where((element) => element.isNowPlaying ?? false)
-          .toList();
-    }else {
-      return [];
-    }
-  }
-
-  List<MovieVO> getPopularMovies() {
-    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
-      return getAllMovies()
-          .where((element) => element.isPopular ?? false)
-          .toList();
-    }else{
-      return [];
-    }
-  }
-
-  List<MovieVO> getTopRatedMovies() {
-    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
-      return getAllMovies()
-          .where((element) => element.isTopRated ?? false)
-          .toList();
-    }else {
-      return [];
-    }
-  }
-
-  Box<MovieVO> getMovieBox() {
-    return Hive.box<MovieVO>(BOX_NAME_MOVIE_VO);
-  }
 }

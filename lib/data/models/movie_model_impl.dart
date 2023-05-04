@@ -8,6 +8,9 @@ import 'package:stream_transform/stream_transform.dart';
 
 import '../../network/dataagents/movie_data_agent.dart';
 import '../../network/dataagents/retrofit_movie_data_agent_impl.dart';
+import '../../persistence/daos/impls/actor_dao_impl.dart';
+import '../../persistence/daos/impls/genre_dao_impl.dart';
+import '../../persistence/daos/impls/movie_dao_impl.dart';
 import '../../persistence/daos/movie_dao.dart';
 
 class MovieModelImpl extends MovieModel {
@@ -21,12 +24,20 @@ class MovieModelImpl extends MovieModel {
 
   MovieModelImpl._internal(); //ရေးစရာဘာမှမရှိ
 
-  final MovieDataAgent _dataAgent = RetrofitMovieDataAgentImpl(); //data agent ကို setup လုပ်ေပးရတယ်။
+  MovieDataAgent _dataAgent = RetrofitMovieDataAgentImpl(); //data agent ကို setup လုပ်ေပးရတယ်။
 
   /// Daos
-  final MovieDao _mMovieDao = MovieDao();
-  final GenreDao _mGenreDao = GenreDao();
-  final ActorDao _mActorDao = ActorDao();
+   MovieDao _mMovieDao = MovieDaoImpl(); // dependecy variable
+   GenreDao _mGenreDao = GenreDaoImpl();
+   ActorDao _mActorDao = ActorDaoImpl();
+
+  /// For Testing Purpose
+  void setDaosAndDataAgent(MovieDao movieDao, GenreDao genreDao, ActorDao actorDao, MovieDataAgent dataAgent) {
+    _mMovieDao = movieDao;
+    _mGenreDao = genreDao;
+    _mActorDao = actorDao;
+    _dataAgent = dataAgent;
+  }
   
 
   // Network
