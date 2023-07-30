@@ -8,7 +8,7 @@ import '../data/vos/movie_vo.dart';
 class MovieDetailsBloc extends ChangeNotifier
 {
   /// State Variable
-  MovieVO? movieDetails;
+  MovieVO movieDetails = MovieVO(null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null);
   List<ActorVO>? cast;
   List<ActorVO>? crew;
   List<MovieVO>? relatedMovies;
@@ -16,17 +16,25 @@ class MovieDetailsBloc extends ChangeNotifier
   /// Model
   MovieModel mMovieModel = MovieModelImpl();
 
-  MovieDetailsBloc(int movieId) {
+  MovieDetailsBloc(int movieId, MovieModel? movieModel) {
+
+    if(movieModel != null) {
+      mMovieModel = movieModel;
+    }
     /// Movie Details Bloc
     mMovieModel.getMovieDetails(movieId).then((movie) {
-      movieDetails = movie;
-      this.getRelatedMovieList(movie?.genres?.first.id ?? 0);
+      if(movie != null) {
+        movieDetails = movie;
+      }
+      getRelatedMovieList(movie?.genres?.first.id ?? 0);
       notifyListeners();
     });
 
     /// Movie Details From Database
     mMovieModel.getMovieDetailsFromDatabase(movieId).then((movie) {
-      movieDetails = movie;
+      if(movie != null) {
+        movieDetails = movie;
+      }
       notifyListeners();
     });
 

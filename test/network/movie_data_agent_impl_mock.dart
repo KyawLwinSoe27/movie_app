@@ -15,7 +15,7 @@ class MovieDataAgentImplMock extends MovieDataAgent {
 
   @override
   Future<List<List<ActorVO>?>> getCreditsByMovie(int movieId) {
-    return Future.value(getMockCredits() as FutureOr<List<List<ActorVO>?>>?);
+    return Future.value(getMockCredits());
   }
 
   @override

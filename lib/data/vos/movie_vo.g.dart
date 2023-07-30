@@ -31,6 +31,9 @@ class MovieVOAdapter extends TypeAdapter<MovieVO> {
       fields[11] as bool?,
       fields[12] as double?,
       fields[13] as int?,
+      fields[26] as bool?,
+      fields[27] as bool?,
+      fields[28] as bool?,
       fields[14] as CollectionVO?,
       fields[15] as double?,
       (fields[16] as List?)?.cast<GenreVO>(),
@@ -43,9 +46,6 @@ class MovieVOAdapter extends TypeAdapter<MovieVO> {
       (fields[23] as List?)?.cast<SpokenLanguageVO>(),
       fields[24] as String?,
       fields[25] as String?,
-      fields[26] as bool?,
-      fields[27] as bool?,
-      fields[28] as bool?,
     );
   }
 
@@ -143,6 +143,9 @@ MovieVO _$MovieVOFromJson(Map<String, dynamic> json) => MovieVO(
       json['video'] as bool?,
       (json['vote_average'] as num?)?.toDouble(),
       json['vote_count'] as int?,
+      json['isNowPlaying'] as bool?,
+      json['isPopular'] as bool?,
+      json['isTopRated'] as bool?,
       json['belongs_to_collection'] == null
           ? null
           : CollectionVO.fromJson(
@@ -166,9 +169,6 @@ MovieVO _$MovieVOFromJson(Map<String, dynamic> json) => MovieVO(
           .toList(),
       json['status'] as String?,
       json['tagline'] as String?,
-      json['isNowPlaying'] as bool?,
-      json['isPopular'] as bool?,
-      json['isTopRated'] as bool?,
     );
 
 Map<String, dynamic> _$MovieVOToJson(MovieVO instance) => <String, dynamic>{

@@ -17,7 +17,7 @@ class ActorView extends StatelessWidget {
         child: Stack(
           children: [
             Positioned.fill(
-              child: ActorImageView(actorProfilePath : actor?.profilePath ?? ""),
+              child: actor?.profilePath != null ? ActorImageView(actorProfilePath : actor?.profilePath ?? "") : Container(),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

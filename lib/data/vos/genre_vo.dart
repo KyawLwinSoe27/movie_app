@@ -16,6 +16,17 @@ class GenreVO {
   @HiveField(1)
   String? name;
 
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GenreVO &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          name == other.name;
+
+  @override
+  int get hashCode => id.hashCode ^ name.hashCode;
+
   GenreVO(this.id, this.name);
 
   factory GenreVO.fromJson(Map<String,dynamic> json) => _$GenreVOFromJson(json);

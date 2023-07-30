@@ -145,6 +145,9 @@ class MovieVO
       this.video,
       this.voteAverage,
       this.voteCount,
+      this.isNowPlaying,
+      this.isPopular,
+      this.isTopRated,
       this.belongsToCollection,
       this.budget,
       this.genres,
@@ -157,9 +160,6 @@ class MovieVO
       this.spokenLanguages,
       this.status,
       this.tagline,
-      this.isNowPlaying,
-      this.isPopular,
-      this.isTopRated,
       );
 
   factory MovieVO.fromJson(Map<String,dynamic> json) => _$MovieVOFromJson(json);
@@ -173,6 +173,18 @@ class MovieVO
   String getGenreListAsCommaSeparatedString(){
     return getGenreListAsStringList().join(",");
   }
+
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MovieVO &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          title == other.title;
+
+  @override
+  int get hashCode => id.hashCode ^ title.hashCode;
 
   String getProductionCountriesAsCommaSeparatedString(){
     return productionCountries

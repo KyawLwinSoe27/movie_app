@@ -23,10 +23,17 @@ class HomeBloc extends ChangeNotifier
   /// Model
   MovieModel mMovieModel = MovieModelImpl();
 
-  HomeBloc() {
+  HomeBloc([MovieModel? movieModel]) {
+    /// Set Mock Model For Test Data
+    if(movieModel != null ) {
+      mMovieModel = movieModel;
+    }
     /// Now Playing Movie Database
     mMovieModel.getNowPlayingMoviesFromDatabase().listen((movieList) {
       nowPlayingMovies = movieList;
+      // if(nowPlayingMovies?.isNotEmpty ?? false) {
+      //   nowPlayingMovies?.sort((a,b) => a.id - b.id );
+      // }
       notifyListeners();
     }).onError((handleError) {
 
@@ -59,7 +66,9 @@ class HomeBloc extends ChangeNotifier
     /// Genres From Database
     mMovieModel.getGenresFromDatabase().then((genres) {
       this.genres = genres;
-      _getMovieByGenreAndRefresh(genres?.first.id ?? 0);
+      if(genres?.isNotEmpty ?? false) {
+        _getMovieByGenreAndRefresh(genres?.first.id ?? 0);
+      }
       notifyListeners();
     });
 

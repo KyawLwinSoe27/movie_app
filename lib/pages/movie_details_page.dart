@@ -19,15 +19,15 @@ import '../widgets/title_and_horizontal_movie_list_view.dart';
 class MovieDetailsPage extends StatelessWidget {
   final int movieId;
 
-  MovieDetailsPage({key, required this.movieId});
+  const MovieDetailsPage({Key? key, required this.movieId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => MovieDetailsBloc(movieId),
+      create: (context) => MovieDetailsBloc(movieId,null),
       child: Scaffold(
         body: Selector<MovieDetailsBloc, MovieVO>(
-          selector: (context, bloc) => bloc.movieDetails!,
+          selector: (context, bloc) => bloc.movieDetails,
           builder: (context, movie, child) => Container(
             color: HOME_SCREEN_BG_COLOR,
             child: CustomScrollView(
@@ -389,7 +389,7 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
           children: [
             Positioned.fill(
               child:
-                  MovieDetailsAppBarImageView(imgUrl: movie?.posterPath ?? ""),
+                  movie?.posterPath != null ? MovieDetailsAppBarImageView(imgUrl: movie?.posterPath ?? "") : Container(),
             ),
             Positioned.fill(child: GradientView()),
             Align(
