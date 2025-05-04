@@ -14,14 +14,13 @@ class ActorDaoImpl extends ActorDao {
 
   ActorDaoImpl._internal();
 
+  @override
   void saveAllActors(List<ActorVO> actorList) async {
-    Map<int,ActorVO> actorMap = Map.fromIterable(actorList,
-      key: (actor) => actor.id,
-      value: (actor) => actor
-      ,);
+    Map<int,ActorVO> actorMap = { for (var actor in actorList) actor.id ?? 0 : actor };
     return await getActorBox().putAll(actorMap);
   }
 
+  @override
   List<ActorVO> getAllActors() {
     return getActorBox().values.toList();
   }

@@ -13,14 +13,14 @@ class ActorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         width: MOVIE_LIST_ITEM_WIDTH,
-        margin: EdgeInsets.only(left: MARGIN_MEDIUM),
+        margin: const EdgeInsets.only(left: MARGIN_MEDIUM),
         child: Stack(
           children: [
             Positioned.fill(
               child: ActorImageView(actorProfilePath : actor?.profilePath ?? ""),
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
+            const Padding(
+              padding: EdgeInsets.all(8.0),
               child: Align(
                 alignment: Alignment.topRight,
                 child: FavouriteButtonView(),
@@ -57,7 +57,7 @@ class FavouriteButtonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    return const Icon(
       Icons.favorite_border,
       color: Colors.white,
     );
@@ -81,12 +81,12 @@ class ActorNameAndLikeView extends StatelessWidget {
         children: [
           Text(
             actorName ?? "",
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
           ),
-          SizedBox(
+          const SizedBox(
             height: MARGIN_MEDIUM,
           ),
-          Row(
+          const Row(
             children: [
               Icon(
                 Icons.thumb_up,

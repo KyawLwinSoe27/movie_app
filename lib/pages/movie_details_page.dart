@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/blocs/movie_details_bloc.dart';
-import 'package:movie_app/data/models/movie_model_impl.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 import 'package:movie_app/widgets/title_text.dart';
 import 'package:provider/provider.dart';
 
-import '../data/models/movie_model.dart';
 import '../data/vos/actor_vo.dart';
 import '../data/vos/movie_vo.dart';
 import '../network/api_constants.dart';
@@ -19,7 +17,7 @@ import '../widgets/title_and_horizontal_movie_list_view.dart';
 class MovieDetailsPage extends StatelessWidget {
   final int movieId;
 
-  MovieDetailsPage({key, required this.movieId});
+  const MovieDetailsPage({Key? key, required this.movieId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -38,13 +36,13 @@ class MovieDetailsPage extends StatelessWidget {
                   delegate: SliverChildListDelegate(
                     [
                       Container(
-                        margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                        margin: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                         child: TrailerSection(
                             overview: movie.overview,
                             genreList:
                             movie.getGenreListAsStringList() ?? []),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: MARGIN_LARGE,
                       ),
                       Selector<MovieDetailsBloc, List<ActorVO>>(
@@ -56,11 +54,11 @@ class MovieDetailsPage extends StatelessWidget {
                           actorsList: actors,
                         ),
                       ),
-                      SizedBox(
+                      const SizedBox(
                         height: MARGIN_LARGE,
                       ),
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+                        padding: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
                         child: AboutFilmSectionView(aboutMovie: movie),
                       ),
                       const SizedBox(
@@ -69,7 +67,7 @@ class MovieDetailsPage extends StatelessWidget {
                       Selector<MovieDetailsBloc, List<ActorVO>>(
                         selector: (context, bloc) => bloc.crew ?? [],
                         builder: (context, crewList, child) {
-                          return (crewList != null && crewList.isNotEmpty) ? ActorsAndCreatorsSectionView(
+                          return (crewList.isNotEmpty) ? ActorsAndCreatorsSectionView(
                             MOVIE_DETAILS_SCREEN_CREATOR_TITLE,
                             MOVIE_DETAILS_SCREEN_CREATORS_SEE_MORE,
                             actorsList: crewList,
@@ -123,24 +121,24 @@ class AboutFilmSectionView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText("ABOUT FILM"),
-        SizedBox(
+        const TitleText("ABOUT FILM"),
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         AboutFilmInfoView("Original Title", aboutMovie?.title ?? ""),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         AboutFilmInfoView("Type", aboutMovie?.getGenreListAsCommaSeparatedString() ?? ""),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         AboutFilmInfoView("Production", aboutMovie?.getProductionCountriesAsCommaSeparatedString() ?? ""),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         AboutFilmInfoView("Premier", aboutMovie?.releaseDate ?? ""),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
         AboutFilmInfoView("Description",aboutMovie?.overview ?? "")
@@ -153,30 +151,30 @@ class AboutFilmInfoView extends StatelessWidget {
   final String lable;
   final String description;
 
-  AboutFilmInfoView(this.lable, this.description);
+  const AboutFilmInfoView(this.lable, this.description, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
+        SizedBox(
           width: MediaQuery.of(context).size.width / 3,
           child: Text(
             lable,
-            style: TextStyle(
+            style: const TextStyle(
                 color: MOVIE_DETAILS_INFO_TEXT_COLOR,
                 fontWeight: FontWeight.w600,
                 fontSize: MARGIN_MEDIUM_2),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_CARD_MEDIUM_2,
         ),
         Expanded(
           child: Text(
             description,
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontSize: MARGIN_MEDIUM_2,
             ),
@@ -201,14 +199,14 @@ class TrailerSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         MovieTimeAndGenreView(genreList: genreList),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM_3,
         ),
-        StoryLineView(overview: this.overview ?? ""),
-        SizedBox(
+        StoryLineView(overview: overview ?? ""),
+        const SizedBox(
           height: MARGIN_MEDIUM_2,
         ),
-        Row(
+        const Row(
           children: [
             MovieDetailsScreenButtonView(
               "PLAY TRAILER",
@@ -242,15 +240,15 @@ class MovieDetailsScreenButtonView extends StatelessWidget {
   final Color backgroundColor;
   final Icon buttonIcon;
   final bool isGhostButton;
-  MovieDetailsScreenButtonView(
+  const MovieDetailsScreenButtonView(
       this.title, this.backgroundColor, this.buttonIcon,
-      {this.isGhostButton = false});
+      {Key? key, this.isGhostButton = false}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: MARGIN_XXLARGE,
-      padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
+      padding: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(MARGIN_LARGE),
@@ -265,12 +263,12 @@ class MovieDetailsScreenButtonView extends StatelessWidget {
         child: Row(
           children: [
             buttonIcon,
-            SizedBox(
+            const SizedBox(
               width: MARGIN_SMALL,
             ),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: TEXT_REGULAR_2X,
                   fontWeight: FontWeight.bold),
@@ -291,13 +289,13 @@ class StoryLineView extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText(MOVIE_DETAILS_STORYLINE_TITLE),
-        SizedBox(
+        const TitleText(MOVIE_DETAILS_STORYLINE_TITLE),
+        const SizedBox(
           height: MARGIN_MEDIUM,
         ),
         Text(
           overview,
-          style: TextStyle(color: Colors.white, fontSize: TEXT_REGULAR_2X),
+          style: const TextStyle(color: Colors.white, fontSize: TEXT_REGULAR_2X),
         ),
       ],
     );
@@ -318,26 +316,26 @@ class MovieTimeAndGenreView extends StatelessWidget {
       alignment: WrapAlignment.start,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Icon(
+        const Icon(
           Icons.access_time,
           color: Colors.amber,
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_SMALL,
         ),
-        Text(
+        const Text(
           "2h 30mins",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_MEDIUM,
         ),
           ...genreList
             .map((genre) => GenreChipView(genre),).toList(),
-        Icon(
+        const Icon(
           Icons.favorite_border,
           color: Colors.white,
         ),
@@ -349,7 +347,7 @@ class MovieTimeAndGenreView extends StatelessWidget {
 class GenreChipView extends StatelessWidget {
   final String genreText;
 
-  const GenreChipView(this.genreText);
+  const GenreChipView(this.genreText, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -360,10 +358,10 @@ class GenreChipView extends StatelessWidget {
           backgroundColor: MOVIE_DETAILS_SCREEN_CHIP_BACKGROUND_COLOR,
           label: Text(
             genreText,
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: MARGIN_SMALL,
         ),
       ],
@@ -391,7 +389,7 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
               child:
                   MovieDetailsAppBarImageView(imgUrl: movie?.posterPath ?? ""),
             ),
-            Positioned.fill(child: GradientView()),
+            const Positioned.fill(child: GradientView()),
             Align(
               alignment: Alignment.topLeft,
               child: Padding(
@@ -400,7 +398,7 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
                   left: MARGIN_MEDIUM_2,
                 ),
                 child: BackButtonView(() {
-                  this.onTapBack();
+                  onTapBack();
                 }),
               ),
             ),
@@ -418,11 +416,11 @@ class MovieDetailsSliverAppBarView extends StatelessWidget {
               alignment: Alignment.bottomLeft,
               child: Container(
                 child: Padding(
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                       left: MARGIN_MEDIUM_2,
                       right: MARGIN_MEDIUM_2,
                       bottom: MARGIN_LARGE),
-                  child: MovieDetailsTitleAndRatingView(movie: this.movie),
+                  child: MovieDetailsTitleAndRatingView(movie: movie),
                 ),
               ),
             )
@@ -448,19 +446,19 @@ class MovieDetailsTitleAndRatingView extends StatelessWidget {
           children: [
             MovieDetailsYearView(
                 year: movie?.releaseDate?.substring(0, 4) ?? ""),
-            Spacer(),
+            const Spacer(),
             MovieDetailsRatingView(
               rating: movie?.voteCount ?? 0,
               average: movie?.voteAverage ?? 0.0,
             )
           ],
         ),
-        SizedBox(
+        const SizedBox(
           height: MARGIN_MEDIUM,
         ),
         Text(
           movie?.title ?? "",
-          style: TextStyle(
+          style: const TextStyle(
               color: Colors.white,
               fontSize: TEXT_HEADING_1X,
               fontWeight: FontWeight.bold),
@@ -488,7 +486,7 @@ class MovieDetailsRatingView extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            RatingView(),
+            const RatingView(),
             const SizedBox(
               height: MARGIN_SMALL / 2,
             ),
@@ -518,7 +516,7 @@ class MovieDetailsYearView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(
+      padding: const EdgeInsets.symmetric(
         horizontal: MARGIN_MEDIUM,
       ),
       height: MARGIN_XLARGE,
@@ -531,7 +529,7 @@ class MovieDetailsYearView extends StatelessWidget {
       child: Center(
           child: Text(
         year,
-        style: TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colors.white),
       )),
     );
   }
@@ -544,7 +542,7 @@ class SearchButtonView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Icon(
+    return const Icon(
       Icons.search,
       color: Colors.white,
       size: MARGIN_XLARGE,
@@ -554,7 +552,7 @@ class SearchButtonView extends StatelessWidget {
 
 class BackButtonView extends StatelessWidget {
   final Function onTapBack;
-  BackButtonView(this.onTapBack);
+  const BackButtonView(this.onTapBack, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -566,8 +564,8 @@ class BackButtonView extends StatelessWidget {
         width: MARGIN_XXLARGE,
         height: MARGIN_XXLARGE,
         decoration:
-            BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
-        child: Icon(
+            const BoxDecoration(shape: BoxShape.circle, color: Colors.black54),
+        child: const Icon(
           Icons.chevron_left,
           color: Colors.white,
           size: MARGIN_XLARGE,

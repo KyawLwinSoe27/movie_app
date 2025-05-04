@@ -93,7 +93,7 @@ class HomeBloc extends ChangeNotifier
 
 
   void onNowPlayingMovieListEndReached() {
-  this.pageForNowPlayingMovies += 1;
+  pageForNowPlayingMovies += 1;
   mMovieModel.getNowPlayingMovies(pageForNowPlayingMovies);
   }
 

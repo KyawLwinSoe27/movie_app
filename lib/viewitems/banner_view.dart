@@ -17,7 +17,7 @@ class BannerView extends StatelessWidget {
         Positioned.fill(
           child: BannerImageView(imgUrl: movie?.posterPath ?? ""),
         ),
-        Positioned.fill(
+        const Positioned.fill(
           child: GradientView(),),
         Align(
           alignment: Alignment.bottomLeft,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:movie_app/widgets/rating_view.dart';
 import '../data/vos/movie_vo.dart';
 import '../network/api_constants.dart';
@@ -23,21 +22,21 @@ class MovieView extends StatelessWidget {
             height: 200.0,
             fit: BoxFit.cover,
           ),
-          SizedBox(
+          const SizedBox(
             height: MARGIN_MEDIUM,
           ),
           Text(
             movie?.title ?? "",
-            style: TextStyle(
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w600,
               fontSize: TEXT_REGULAR_2X,
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: MARGIN_MEDIUM,
           ),
-          Row(
+          const Row(
             children: [
               Text(
                 "9,89",

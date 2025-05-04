@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:hive_flutter/adapters.dart';
-import 'package:movie_app/network/dataagents/http_movie_data_agent_impl.dart';
 import 'package:movie_app/pages/home_page.dart';
-import 'package:movie_app/pages/movie_details_page.dart';
 import 'package:movie_app/persistence/hive_constants.dart';
 
 import 'data/vos/actor_vo.dart';
@@ -35,7 +32,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({key});
+  const MyApp({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -46,7 +43,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: HomePage(),
+      home: const HomePage(),
     );
   }
 }

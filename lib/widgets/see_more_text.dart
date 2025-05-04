@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SeeMoreText extends StatelessWidget {
   final String text;
   final Color textColor;
-  const SeeMoreText(this.text, {this.textColor = Colors.white});
+  const SeeMoreText(this.text, {Key? key, this.textColor = Colors.white}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

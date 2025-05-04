@@ -4,7 +4,6 @@ import 'package:movie_app/widgets/title_text_with_see_more_view.dart';
 import '../data/vos/actor_vo.dart';
 import '../resources/colors.dart';
 import '../resources/dimensions.dart';
-import '../resources/strings.dart';
 import '../viewitems/actor_view.dart';
 
 class ActorsAndCreatorsSectionView extends StatelessWidget {
@@ -21,7 +20,7 @@ class ActorsAndCreatorsSectionView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: PRIMARY_COLOR,
-      padding: EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_XXLARGE),
+      padding: const EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_XXLARGE),
       child: Column(
         children: [
           Padding(
@@ -35,11 +34,11 @@ class ActorsAndCreatorsSectionView extends StatelessWidget {
           const SizedBox(
             height: MARGIN_MEDIUM,
           ),
-          Container(
+          SizedBox(
             height: MOVIE_LIST_HEIGHT,
             child: ListView(
               scrollDirection: Axis.horizontal,
-              padding: EdgeInsets.only(left: MARGIN_MEDIUM),
+              padding: const EdgeInsets.only(left: MARGIN_MEDIUM),
               children: actorsList
                       ?.map((actor) => ActorView(actor: actor))
                       .toList() ??

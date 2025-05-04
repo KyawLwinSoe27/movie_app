@@ -139,7 +139,7 @@ class MovieModelImpl extends MovieModel {
 
   @override
   Stream<List<MovieVO>> getNowPlayingMoviesFromDatabase() {
-    this.getNowPlayingMovies(1);
+    getNowPlayingMovies(1);
     return _mMovieDao.getAllMoviesEventStream()
       .startWith(_mMovieDao.getNowPlayingMoviesStream())
         .map((event) => _mMovieDao.getNowPlayingMovies());
@@ -147,7 +147,7 @@ class MovieModelImpl extends MovieModel {
 
   @override
   Stream<List<MovieVO>> getPopularMoviesFromDatabase() {
-    this.getPopularMovies(1);
+    getPopularMovies(1);
     return _mMovieDao.getAllMoviesEventStream()
       .startWith(_mMovieDao.getPopularMoviesStream())
       .map((event) => _mMovieDao.getPopularMovies());
@@ -155,7 +155,7 @@ class MovieModelImpl extends MovieModel {
 
   @override
   Stream<List<MovieVO>> getTopRatedMoviesFromDatabase() {
-    this.getTopRatedMovies(1);
+    getTopRatedMovies(1);
     return _mMovieDao.getAllMoviesEventStream()
         .startWith(_mMovieDao.getTopRatedMoviesStream())
         .map((event) => _mMovieDao.getTopRatedMovies());

@@ -15,46 +15,55 @@ class MovieDaoImpl extends MovieDao{
 
   MovieDaoImpl._internal();
 
+  @override
   void saveAllMovies(List<MovieVO> movieList) async {
-    Map<int,MovieVO> movieMap = Map.fromIterable(movieList, key: (movie) => movie.id, value: (movie) => movie);
+    Map<int,MovieVO> movieMap = { for (var movie in movieList) movie.id ?? 0 : movie };
     return await getMovieBox().putAll(movieMap);
   }
 
+  @override
   void saveSingleMovie(MovieVO movie) async {
     return await getMovieBox().put(movie.id, movie);
   }
 
+  @override
   List<MovieVO> getAllMovies() {
     return getMovieBox().values.toList();
   }
 
+  @override
   MovieVO? getMovieById(int movieId) {
     return getMovieBox().get(movieId);
   }
 
   /// Reactive Programming
+  @override
   Stream<void> getAllMoviesEventStream() { //Data Change Event
     return getMovieBox().watch(); //function changes invoke လုပ်ရင် သူ့ကို listen လုပ်နေတယ့် callback ထဲကိုရောက်
   }
 
+  @override
   Stream<List<MovieVO>> getNowPlayingMoviesStream() {
     return Stream.value(getAllMovies()
         .where((element) => element.isNowPlaying ?? false).toList()
     );
   }
 
+  @override
   Stream<List<MovieVO>> getTopRatedMoviesStream() {
     return Stream.value(getAllMovies()
         .where((element) => element.isTopRated ?? false).toList()
     );
   }
 
+  @override
   Stream<List<MovieVO>> getPopularMoviesStream() {
     return Stream.value(getAllMovies()
         .where((element) => element.isPopular ?? false).toList()
     );
   }
 
+  @override
   List<MovieVO> getNowPlayingMovies() {
     if((getAllMovies().isNotEmpty)){
       return getAllMovies()
@@ -65,8 +74,9 @@ class MovieDaoImpl extends MovieDao{
     }
   }
 
+  @override
   List<MovieVO> getPopularMovies() {
-    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
+    if((getAllMovies().isNotEmpty ?? false)){
       return getAllMovies()
           .where((element) => element.isPopular ?? false)
           .toList();
@@ -75,8 +85,9 @@ class MovieDaoImpl extends MovieDao{
     }
   }
 
+  @override
   List<MovieVO> getTopRatedMovies() {
-    if(getAllMovies() != null && (getAllMovies().isNotEmpty ?? false)){
+    if((getAllMovies().isNotEmpty ?? false)){
       return getAllMovies()
           .where((element) => element.isTopRated ?? false)
           .toList();

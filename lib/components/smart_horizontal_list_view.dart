@@ -5,12 +5,12 @@ class SmartHorizontalListView extends StatefulWidget {
   final IndexedWidgetBuilder itemBuilder;
   final EdgeInsets padding;
   final Function onListEndReached;
-  SmartHorizontalListView({
+  const SmartHorizontalListView({Key? key, 
   required this.itemCount,
     required this.padding,
     required this.itemBuilder,
     required this.onListEndReached
-});
+}) : super(key: key);
 
   @override
   State<SmartHorizontalListView> createState() => _SmartHorizontalListViewState();

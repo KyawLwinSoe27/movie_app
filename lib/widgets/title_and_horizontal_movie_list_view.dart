@@ -12,7 +12,7 @@ class TitleAndHorizontalMovieListView extends StatelessWidget {
   final Function onListEndReached;
 
   TitleAndHorizontalMovieListView(
-      {required this.nowPlayingMovies, required this.onTapMovie, required this.title, required this.onListEndReached});
+      {Key? key, required this.nowPlayingMovies, required this.onTapMovie, required this.title, required this.onListEndReached}) : super(key: key);
 
   List<MovieVO>? nowPlayingMovies;
 
@@ -25,12 +25,12 @@ class TitleAndHorizontalMovieListView extends StatelessWidget {
           margin: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
           child: TitleText(title),
         ),
-        SizedBox(height: MARGIN_MEDIUM_2),
+        const SizedBox(height: MARGIN_MEDIUM_2),
         HorizontalMovieListsView(
-          onTapMovie: (movieId) => this.onTapMovie(movieId),
+          onTapMovie: (movieId) => onTapMovie(movieId),
           movieList: nowPlayingMovies,
           onListEndReached: () {
-            this.onListEndReached();
+            onListEndReached();
           },
         ),
       ],
@@ -52,7 +52,7 @@ class HorizontalMovieListsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: MOVIE_LIST_HEIGHT,
       child: (movieList != null)
       //     ? ListView.builder(
@@ -70,7 +70,7 @@ class HorizontalMovieListsView extends StatelessWidget {
       // )
       ? SmartHorizontalListView(
           itemCount: movieList?.length ?? 0,
-          padding: EdgeInsets.only(left: MARGIN_MEDIUM_2),
+          padding: const EdgeInsets.only(left: MARGIN_MEDIUM_2),
           itemBuilder: (BuildContext context, int index) {
           return GestureDetector(
             onTap: () => onTapMovie(movieList?[index].id),
@@ -80,10 +80,10 @@ class HorizontalMovieListsView extends StatelessWidget {
           );
         },
           onListEndReached: () {
-            this.onListEndReached();
+            onListEndReached();
           }
       )
-          : Center(
+          : const Center(
         child: CircularProgressIndicator(),
       ),
     );

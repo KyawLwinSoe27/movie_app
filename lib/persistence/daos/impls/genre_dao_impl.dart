@@ -15,11 +15,13 @@ class GenreDaoImpl extends GenreDao{
 
   GenreDaoImpl._internal();
 
+  @override
   void saveAllGenre(List<GenreVO> genreList) async {
-    Map<int,GenreVO> genreMap = Map.fromIterable(genreList, key: (genre) => genre.id, value: (genre) => genre);
+    Map<int,GenreVO> genreMap = { for (var genre in genreList) genre.id ?? 0 : genre };
     return await getGenreBox().putAll(genreMap);
   }
 
+  @override
   List<GenreVO> getAllGenres() {
     return getGenreBox().values.toList();
   }

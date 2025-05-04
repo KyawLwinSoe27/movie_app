@@ -20,7 +20,7 @@ class MovieDetailsBloc extends ChangeNotifier
     /// Movie Details Bloc
     mMovieModel.getMovieDetails(movieId).then((movie) {
       movieDetails = movie;
-      this.getRelatedMovieList(movie?.genres?.first.id ?? 0);
+      getRelatedMovieList(movie?.genres?.first.id ?? 0);
       notifyListeners();
     });
 

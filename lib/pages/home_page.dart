@@ -1,22 +1,17 @@
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_app/blocs/home_bloc.dart';
-import 'package:movie_app/data/models/movie_model_impl.dart';
 import 'package:movie_app/pages/movie_details_page.dart';
 import 'package:movie_app/resources/colors.dart';
 import 'package:movie_app/resources/dimensions.dart';
 import 'package:movie_app/resources/strings.dart';
-import 'package:movie_app/viewitems/actor_view.dart';
 import 'package:movie_app/viewitems/banner_view.dart';
 import 'package:movie_app/viewitems/showcase_view.dart';
-import 'package:movie_app/widgets/title_text.dart';
 import 'package:movie_app/widgets/title_text_with_see_more_view.dart';
 import 'package:provider/provider.dart';
-import '../data/models/movie_model.dart';
 import '../data/vos/actor_vo.dart';
 import '../data/vos/genre_vo.dart';
 import '../data/vos/movie_vo.dart';
-import '../viewitems/movie_view.dart';
 import '../widgets/actors_and_creators_section_view.dart';
 import '../widgets/see_more_text.dart';
 import '../widgets/title_and_horizontal_movie_list_view.dart';
@@ -73,9 +68,9 @@ class HomePage extends StatelessWidget {
                       },
                     ),
                   ),
-                  SizedBox(height: MARGIN_LARGE),
-                  CheckMovieShowtimeSectionView(),
-                  SizedBox(
+                  const SizedBox(height: MARGIN_LARGE),
+                  const CheckMovieShowtimeSectionView(),
+                  const SizedBox(
                     height: MARGIN_LARGE,
                   ),
                   Selector<HomeBloc, List<GenreVO>>(
@@ -100,7 +95,7 @@ class HomePage extends StatelessWidget {
                                   },
                             ),
                           )),
-                  SizedBox(height: MARGIN_LARGE),
+                  const SizedBox(height: MARGIN_LARGE),
                   Selector<HomeBloc, List<MovieVO>>(
                     selector: (context, bloc) => bloc.topRatedMovies ?? [],
                     builder: (context, topRatedMovies, child) =>
@@ -108,7 +103,7 @@ class HomePage extends StatelessWidget {
                       showCaseMovies: topRatedMovies,
                     ),
                   ),
-                  SizedBox(height: MARGIN_LARGE),
+                  const SizedBox(height: MARGIN_LARGE),
                   Selector<HomeBloc, List<ActorVO>>(
                     selector: (context, bloc) => bloc.actors ?? [],
                     builder: (context, actors, child) =>
@@ -179,12 +174,12 @@ class GenreSectionView extends StatelessWidget {
         ),
         Container(
           color: PRIMARY_COLOR,
-          padding: EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
+          padding: const EdgeInsets.only(top: MARGIN_MEDIUM_2, bottom: MARGIN_LARGE),
           child: HorizontalMovieListsView(
-            onTapMovie: (movieId) => this.onTapMovie(movieId),
+            onTapMovie: (movieId) => onTapMovie(movieId),
             movieList: moviesByGenre,
             onListEndReached: () {
-              this.onListEndReached();
+              onListEndReached();
             },
           ),
         )
@@ -203,9 +198,9 @@ class CheckMovieShowtimeSectionView extends StatelessWidget {
     return Container(
       color: PRIMARY_COLOR,
       height: SHOW_TIME_SECTION_HEIGHT,
-      margin: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
-      padding: EdgeInsets.all(MARGIN_LARGE),
-      child: Row(
+      margin: const EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
+      padding: const EdgeInsets.all(MARGIN_LARGE),
+      child: const Row(
         children: [
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,13 +239,13 @@ class ShowCasesSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
+        const Padding(
           padding: EdgeInsets.symmetric(horizontal: MARGIN_MEDIUM_2),
           child:
               TitleTextWithSeeMoreView(SHOW_CASES_TITLE, SHOW_CASES_SEE_MORE),
         ),
-        SizedBox(height: MARGIN_MEDIUM_2),
-        Container(
+        const SizedBox(height: MARGIN_MEDIUM_2),
+        SizedBox(
           height: SHOW_CASES_HEIGHT,
           child: ListView(
             scrollDirection: Axis.horizontal,
@@ -281,7 +276,7 @@ class _BannerSectionViewState extends State<BannerSectionView> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: MediaQuery.of(context).size.height / 3,
           child: PageView(
             onPageChanged: (page) {
